@@ -1,31 +1,17 @@
 import express from 'express';
-import bodyParser from 'body-parser';
-import { listings } from './listings';
+import { ApolloServer } from 'apollo-server-express';
+import { schema } from './graphql';
 
+// create an instance of Express server
 const app = express();
 const port = 9000;
 
-// apply middleware to parse incoming requests as JSON
-app.use(bodyParser.json());
-
-// GET all listings
-app.get('/listings', (_req, res) => {
-	return res.send(listings);
-});
-
-// POST route to delete a listing
-app.post('/delete-listing', (req, res) => {
-	const id: string = req.body.id;
-
-	for (let i = 0; i < listings.length; i++) {
-		if (listings[i].id === id) {
-			return res.send(listings.splice(i, 1)[0]);
-		}
-	}
-	// if id can't be found
-	return res.send('ERROR: That listing does not exist. Nothing deleted.');
-});
+// create an instance of Apollo server
+const server = new ApolloServer({ schema });
+server.applyMiddleware({ app, path: '/api' });
 
 app.listen(port);
 
 console.log(`[app]: http://localhost:${port}`);
+
+// if not using body-parser, can we remove from package.json?
